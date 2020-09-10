@@ -8,7 +8,7 @@ The new [SVG Tiny Portable/Secure (SVG P/S)](https://tools.ietf.org/id/draft-svg
 
 ## Initial Prototypes
 
-The initial v.01 prototype source code was developed by Mouaad Boukiaou, and has all been released under an [MIT licence](https://opensource.org/licenses/MIT).
+The initial v.01 prototype source code was developed by [Mouaad Boukiaou](https://www.upwork.com/freelancers/~014dce51f695c1c664), and has all been released under an [MIT licence](https://opensource.org/licenses/MIT).
 
 ### Windows 10 Standalone GUI Tool
 
