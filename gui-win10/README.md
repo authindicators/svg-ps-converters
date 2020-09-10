@@ -1,1 +1,3 @@
-# Windows 10 GUI
+# SVG P/S Converter - Windows 10 GUI
+
+Instructions coming soon...
