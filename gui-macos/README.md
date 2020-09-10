@@ -1,1 +1,3 @@
-# MacOS GUI Readme
+# SVG P/S Converter - MacOS GUI
+
+Instructions coming soon...
