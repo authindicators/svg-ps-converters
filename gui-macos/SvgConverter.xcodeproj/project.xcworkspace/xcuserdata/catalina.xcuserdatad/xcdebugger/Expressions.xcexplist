@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VariablesViewState
+   version = "1.0">
+   <ContextStates>
+      <ContextState
+         contextName = "ViewController.getAllDescedants(element:):ViewController.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "childElement.children?">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "ViewController.parseStyleWithBrackets(line:mapStyles:):ViewController.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "open_bracket_pos">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "ViewController.selectInputFile(_:):ViewController.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "xmlDoc.xmlString">
+            </PersistentString>
+            <PersistentString
+               value = "fileURL.path">
+            </PersistentString>
+            <PersistentString
+               value = "xml == nil">
+            </PersistentString>
+            <PersistentString
+               value = "xmlRoot?.attribute(forName: &quot;version&quot;)">
+            </PersistentString>
+            <PersistentString
+               value = "fileURL.absoluteString">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "ViewController.generateNewSVG(_:):ViewController.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "mdElements[0].attributes">
+            </PersistentString>
+            <PersistentString
+               value = "svgElement">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+   </ContextStates>
+</VariablesViewState>
