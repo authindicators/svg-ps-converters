@@ -6,7 +6,7 @@ The goal of this project is to develop various open source tools that will expor
 
 The new [SVG Tiny Portable/Secure (SVG P/S)](https://tools.ietf.org/id/draft-svg-tiny-ps-abrotman-00.txt) format is specified by a new document published to the IETF for comments.  In addition to the specification document, a [SVG P/S RELAX NG Compact (RNC) XML](https://bimigroup.org/resources/SVG_PS-latest.rnc.txt) schema validation file has also been developed that can be used to verify the output is compliant with the new SVG P/S format.
 
-***NOTE:** As the SVG P/S specification is currently only a draft, it is likely to change based on feedback and discussions that will require changes to this work as necessary.*
+**NOTE:** *As the SVG P/S specification is currently only a draft, it is likely to change based on feedback and discussions that will require changes to this work as necessary.*
 
 ## Initial Prototypes
 
