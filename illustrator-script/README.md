@@ -1,4 +1,4 @@
-# Adobe Illustrator Export Script
+# SVG P/S Converter - Adobe Illustrator Script
 
 A simple script that can be added to Adobe Illustrator (either Windows or MacOS) and offers the ability to convert an open SVG Tiny 1.2 file into SVG P/S format.
 
