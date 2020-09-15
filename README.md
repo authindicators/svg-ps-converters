@@ -12,14 +12,6 @@ The new [SVG Tiny Portable/Secure (SVG P/S)](https://tools.ietf.org/id/draft-svg
 
 The initial v.01 prototype source code was developed by [Mouaad Boukiaou](https://www.upwork.com/freelancers/~014dce51f695c1c664), and has all been released under an [MIT licence](https://opensource.org/licenses/MIT).
 
-### Windows 10 Standalone GUI Tool
-
-Description TBD
-
-### MacOS Standalone GUI Tool
-
-Description TBD
-
-### Adobe Illustrator Export Script
-
-Description TBD
+- [Standalone GUI Tool - Windows 10](https://github.com/authindicators/svg-ps-converters/tree/master/gui-win10)
+- [Standalone GUI Tool - MacOS](https://github.com/authindicators/svg-ps-converters/tree/master/gui-macos)
+- [Adobe Illustrator Export Script](https://github.com/authindicators/svg-ps-converters/tree/master/illustrator-script)
