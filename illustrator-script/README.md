@@ -4,7 +4,7 @@ A simple script that can be added to Adobe Illustrator (either Windows or MacOS)
 
 ## Instructions
 
-1. Download the the script.
+1. Download the the [script](https://github.com/authindicators/svg-ps-converters/blob/master/illustrator-script/SaveAsSVGTinyPS_v0.1.jsx).
 1. Install the script into the "scripts" directory for Adobe Illustrator.  You may need to [research the location of the "scripts" folder](https://illustrator-scripting-guide.readthedocs.io/introduction/executingScripts/#installing-scripts-in-the-scripts-menu) for your version of Adobe Illustrator. 
 1. Run the Adobe Illustrator.
 1. Open an SVG Tiny 1.2 file (which may have been previously exported by Adobe Illustrator using the "Save As SVG Tiny" option).
