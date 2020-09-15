@@ -2,7 +2,7 @@
 
 ## Summary
 
-The goal of this project is to develop various open source tools that will export a vector image into a new SVG format that's a more secure version of SVG format. The new format is based [SVG Tiny 1.2](https://www.w3.org/TR/SVGTiny12/) as defined by the W3C, though it is more restrictive and requires modification of standard SVG documents.
+The goal of this project is to develop various open source tools that will convert or export a vector image into a more constrained and secure SVG format. The new format is based [SVG Tiny 1.2](https://www.w3.org/TR/SVGTiny12/) as defined by the W3C, though it is more restrictive and requires additional modification.  As there are currently no tools available for the new format, the code of this project helps to fill that gap.
 
 The new [SVG Tiny Portable/Secure (SVG P/S)](https://tools.ietf.org/id/draft-svg-tiny-ps-abrotman-00.txt) format is specified by a new document published to the IETF for comments.  In addition to the specification document, a [SVG P/S RELAX NG Compact (RNC) XML](https://bimigroup.org/resources/SVG_PS-latest.rnc.txt) schema validation file has also been developed that can be used to verify the output is compliant with the new SVG P/S format.
 
