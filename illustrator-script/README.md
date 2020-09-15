@@ -8,7 +8,7 @@ A simple script that can be added to Adobe Illustrator (either Windows or MacOS)
 1. Install the script into the "scripts" directory for Adobe Illustrator.  You may need to [research the location of the "scripts" folder](https://illustrator-scripting-guide.readthedocs.io/introduction/executingScripts/#installing-scripts-in-the-scripts-menu) for your version of Adobe Illustrator. 
 1. Run the Adobe Illustrator.
 1. Open an SVG Tiny 1.2 file (which may have been previously exported by Adobe Illustrator using the "Save As SVG Tiny" option).
-1. Within Adobe Illustrator, Select the "File --> Scripts --> SaveAsSVGTinyPS_v0.1" script.
+1. Within Adobe Illustrator, Select the "File --> Scripts --> SaveAsSVGTinyPS_v0.1".
 
 The converted file will be saved with the output filename matching the input file name, postpended with "\_tiny_ps.svg".
 
