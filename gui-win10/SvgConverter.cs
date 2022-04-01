@@ -17,7 +17,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Windows.Forms;
+using System.Xml;
 using System.Xml.Linq;
 
 namespace svgConverter
@@ -316,8 +318,34 @@ namespace svgConverter
                     }
                 }
 
-                // Saving the document with new file path.
-                m_xdoc.Save(newFilePath);
+                // Saving the document with new file path, BOM-less when UTF8 encoded.
+                var xmlWriterSettings = new XmlWriterSettings
+                {
+                    Indent = true,
+                    Encoding = new UTF8Encoding(false)
+                };
+                if (m_xdoc.Declaration != null)
+                {
+                    if (!string.IsNullOrEmpty(m_xdoc.Declaration.Encoding))
+                    {
+                        try
+                        {
+                            var encoding = Encoding.GetEncoding(m_xdoc.Declaration.Encoding);
+                            if (encoding != null && !encoding.Equals(Encoding.UTF8))
+                            {
+                                xmlWriterSettings.Encoding = encoding;
+                            }
+                        }
+                        catch (ArgumentException ex)
+                        {
+                        }
+                    }
+                }
+
+                using (var writer = XmlWriter.Create(newFilePath, xmlWriterSettings))
+                {
+                    m_xdoc.Save(writer);
+                }
 
                 MessageBox.Show("Generated the new SVG Tiny Portable/Secure file.\n" + newFilePath, "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
