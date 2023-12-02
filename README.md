@@ -15,3 +15,6 @@ The initial v.01 prototype source code was developed by [Mouaad Boukiaou](https:
 - [Standalone GUI Tool - Windows 10](https://github.com/authindicators/svg-ps-converters/tree/master/gui-win10)
 - [Standalone GUI Tool - MacOS](https://github.com/authindicators/svg-ps-converters/tree/master/gui-macos)
 - [Adobe Illustrator Export Script](https://github.com/authindicators/svg-ps-converters/tree/master/illustrator-script)
+
+## Third party implementation 
+- [svgtinyps - Cross plateform CLI Tool](https://github.com/SRWieZ/svgtinyps-cli)
