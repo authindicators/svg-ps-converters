@@ -27,86 +27,145 @@ namespace svgConverter
         private const string AppTitle = "SVG CONVERTER";
         private const string SVGNS = "{http://www.w3.org/2000/svg}";
 
-        private string[] ALLOWED_ELEMENTS_NAME = {
-            "circle", "defs", "desc", "ellipse", "g", "line", "linearGradient", "path", "polygon", "polyline", "radialGradient", "rect", "solidColor", "svg", "text", "textArea", "title", "use"
-        };
-
         private string[] SVG_ALLOWED_ATTRIBUTES = {
             "about", "baseProfile", "class", "color", "color-rendering", "content", "contentScriptType", "datatype", "direction", "display-align", "externalResourcesRequired", "fill", "fill-opacity", "fill-rule", "focusable", "font-family", "font-size", "font-style", "font-variant", "font-weight", "height", "line-increment", "playbackOrder", "preserveAspectRatio", "property", "rel", "resource", "rev", "role", "snapshotTime", "solid-color", "solid-opacity", "stop-color", "stop-opacity", "stroke", "stroke-dasharray", "stroke-dashoffset", "stroke-linecap", "stroke-linejoin", "stroke-miterlimit", "stroke-opacity", "stroke-width", "text-align", "text-anchor", "timelineBegin", "typeof", "unicode-bidi", "vector-effect", "version", "viewBox", "width", "xml:base", "xml:lang", "xml:space", "zoomAndPan"
+        };
+        
+        private string[] SVG_ALLOWED_ELEMENTS = {
+            "circle", "defs", "desc", "ellipse", "g", "line", "linearGradient", "metadata", "path", "polygon", "polyline", "radialGradient", "rect", "solidColor", "text", "textArea", "title", "use"
         };
 
         private string[] DESC_ALLOWED_ATTRIBUTES = {
             "about", "buffered-rendering", "class", "content", "datatype", "display", "id", "image-rendering", "property", "rel", "requiredFonts", "resource", "rev", "role", "shape-rendering", "systemLanguage", "text-rendering", "typeof", "viewport-fill", "viewport-fill-opacity", "visibility", "xml:base", "xml:id", "xml:lang", "xml:space"
         };
+        
+        private string[] DESC_ALLOWED_ELEMENTS = {
+            "text"
+        };
 
         private string[] TITLE_ALLOWED_ATTRIBUTES = {
             "about", "buffered-rendering", "class", "content", "datatype", "display", "id", "image-rendering", "property", "rel", "requiredFonts", "resource", "rev", "role", "shape-rendering", "systemLanguage", "text-rendering", "typeof", "viewport-fill", "viewport-fill-opacity", "visibility", "xml:base", "xml:id", "xml:lang", "xml:space"
+        };
+        
+        private string[] TITLE_ALLOWED_ELEMENTS = {
+            "text"
         };
 
         private string[] PATH_ALLOWED_ATTRIBUTES = {
             "about", "class", "color", "color-rendering", "content", "d", "datatype", "direction", "display-align", "fill", "fill-opacity", "fill-rule", "font-family", "font-size", "font-style", "font-variant", "font-weight", "id", "line-increment", "pathLength", "property", "rel", "requiredFonts", "resource", "rev", "role", "solid-color", "solid-opacity", "stop-color", "stop-opacity", "stroke", "stroke-dasharray", "stroke-dashoffset", "stroke-linecap", "stroke-linejoin", "stroke-miterlimit", "stroke-opacity", "stroke-width", "systemLanguage", "text-align", "text-anchor", "transform", "typeof", "unicode-bidi", "vector-effect", "xml:base", "xml:id", "xml:lang", "xml:space"
         };
+        
+        private string[] PATH_ALLOWED_ELEMENTS = { };
 
         private string[] RECT_ALLOWED_ATTRIBUTES = {
             "about", "class", "color", "color-rendering", "content", "datatype", "direction", "display-align", "fill", "fill-opacity", "fill-rule", "font-family", "font-size", "font-style", "font-variant", "font-weight", "height", "id", "line-increment", "property", "rel", "requiredFonts", "resource", "rev", "role", "rx", "ry", "solid-color", "solid-opacity", "stop-color", "stop-opacity", "stroke", "stroke-dasharray", "stroke-dashoffset", "stroke-linecap", "stroke-linejoin", "stroke-miterlimit", "stroke-opacity", "stroke-width", "systemLanguage", "text-align", "text-anchor", "transform", "typeof", "unicode-bidi", "vector-effect", "width", "x", "xml:base", "xml:id", "xml:lang", "xml:space", "y"
         };
+        
+        private string[] RECT_ALLOWED_ELEMENTS = { };
 
         private string[] CIRCLE_ALLOWED_ATTRIBUTES = {
             "about", "class", "color", "color-rendering", "content", "cx", "cy", "datatype", "direction", "display-align", "fill", "fill-opacity", "fill-rule", "font-family", "font-size", "font-style", "font-variant", "font-weight", "id", "line-increment", "property", "r", "rel", "requiredFonts", "resource", "rev", "role", "solid-color", "solid-opacity", "stop-color", "stop-opacity", "stroke", "stroke-dasharray", "stroke-dashoffset", "stroke-linecap", "stroke-linejoin", "stroke-miterlimit", "stroke-opacity", "stroke-width", "systemLanguage", "text-align", "text-anchor", "transform", "typeof", "unicode-bidi", "vector-effect", "xml:base", "xml:id", "xml:lang", "xml:space"
         };
+        
+        private string[] CIRCLE_ALLOWED_ELEMENTS = { };
 
         private string[] LINE_ALLOWED_ATTRIBUTES = {
             "about", "class", "color", "color-rendering", "content", "datatype", "direction", "display-align", "fill", "fill-opacity", "fill-rule", "font-family", "font-size", "font-style", "font-variant", "font-weight", "id", "line-increment", "property", "rel", "requiredFonts", "resource", "rev", "role", "solid-color", "solid-opacity", "stop-color", "stop-opacity", "stroke", "stroke-dasharray", "stroke-dashoffset", "stroke-linecap", "stroke-linejoin", "stroke-miterlimit", "stroke-opacity", "stroke-width", "systemLanguage", "text-align", "text-anchor", "transform", "typeof", "unicode-bidi", "vector-effect", "x1", "x2", "xml:base", "xml:id", "xml:lang", "xml:space", "y1", "y2"
         };
+        
+        private string[] LINE_ALLOWED_ELEMENTS = { };
 
         private string[] ELLIPSE_ALLOWED_ATTRIBUTES = {
             "about", "class", "color", "color-rendering", "content", "cx", "cy", "datatype", "direction", "display-align", "fill", "fill-opacity", "fill-rule", "font-family", "font-size", "font-style", "font-variant", "font-weight", "id", "line-increment", "property", "rel", "requiredFonts", "resource", "rev", "role", "rx", "ry", "solid-color", "solid-opacity", "stop-color", "stop-opacity", "stroke", "stroke-dasharray", "stroke-dashoffset", "stroke-linecap", "stroke-linejoin", "stroke-miterlimit", "stroke-opacity", "stroke-width", "systemLanguage", "text-align", "text-anchor", "transform", "typeof", "unicode-bidi", "vector-effect", "xml:base", "xml:id", "xml:lang", "xml:space"
         };
+        
+        private string[] ELLIPSE_ALLOWED_ELEMENTS = { };
 
         private string[] POLYLINE_ALLOWED_ATTRIBUTES = {
             "about", "class", "color", "color-rendering", "content", "datatype", "direction", "display-align", "fill", "fill-opacity", "fill-rule", "font-family", "font-size", "font-style", "font-variant", "font-weight", "id", "line-increment", "points", "property", "rel", "requiredFonts", "resource", "rev", "role", "solid-color", "solid-opacity", "stop-color", "stop-opacity", "stroke", "stroke-dasharray", "stroke-dashoffset", "stroke-linecap", "stroke-linejoin", "stroke-miterlimit", "stroke-opacity", "stroke-width", "systemLanguage", "text-align", "text-anchor", "transform", "typeof", "unicode-bidi", "vector-effect", "xml:base", "xml:id", "xml:lang", "xml:space"
         };
+        
+        private string[] POLYLINE_ALLOWED_ELEMENTS = { };
 
         private string[] POLYGON_ALLOWED_ATTRIBUTES = {
              "about", "class", "color", "color-rendering", "content", "datatype", "direction", "display-align", "fill", "fill-opacity", "fill-rule", "font-family", "font-size", "font-style", "font-variant", "font-weight", "id", "line-increment", "points", "property", "rel", "requiredFonts", "resource", "rev", "role", "solid-color", "solid-opacity", "stop-color", "stop-opacity", "stroke", "stroke-dasharray", "stroke-dashoffset", "stroke-linecap", "stroke-linejoin", "stroke-miterlimit", "stroke-opacity", "stroke-width", "systemLanguage", "text-align", "text-anchor", "transform", "typeof", "unicode-bidi", "vector-effect", "xml:base", "xml:id", "xml:lang", "xml:space"
         };
+        
+        private string[] POLYGON_ALLOWED_ELEMENTS = { };
 
         private string[] SOLIDCOLOR_ALLOWED_ATTRIBUTES = {
              "about", "class", "color", "color-rendering", "content", "datatype", "direction", "display-align", "fill", "fill-opacity", "fill-rule", "font-family", "font-size", "font-style", "font-variant", "font-weight", "id", "line-increment", "property", "rel", "resource", "rev", "role", "solid-color", "solid-opacity", "stop-color", "stop-opacity", "stroke", "stroke-dasharray", "stroke-dashoffset", "stroke-linecap", "stroke-linejoin", "stroke-miterlimit", "stroke-opacity", "stroke-width", "text-align", "text-anchor", "typeof", "unicode-bidi", "vector-effect", "xml:base", "xml:id", "xml:lang", "xml:space"
         };
+        
+        private string[] SOLIDCOLOR_ALLOWED_ELEMENTS = { };
 
         private string[] TEXTAREA_ALLOWED_ATTRIBUTES = {
             "about", "class", "color", "color-rendering", "content", "datatype", "direction", "display-align", "fill", "fill-opacity", "fill-rule", "font-family", "font-size", "font-style", "font-variant", "font-weight", "height", "id", "line-increment", "property", "rel", "requiredFonts", "resource", "rev", "role", "solid-color", "solid-opacity", "stop-color", "stop-opacity", "stroke", "stroke-dasharray", "stroke-dashoffset", "stroke-linecap", "stroke-linejoin", "stroke-miterlimit", "stroke-opacity", "stroke-width", "systemLanguage", "text-align", "text-anchor", "transform", "typeof", "unicode-bidi", "vector-effect", "width", "x", "xml:base", "xml:id", "xml:lang", "xml:space", "y"
+        };
+        
+        private string[] TEXTAREA_ALLOWED_ELEMENTS = { 
+            "text"
         };
 
         private string[] LINEARGRADIENT_ALLOWED_ATTRIBUTES = {
             "about", "class", "color", "color-rendering", "content", "datatype", "direction", "display-align", "fill", "fill-opacity", "fill-rule", "font-family", "font-size", "font-style", "font-variant", "font-weight", "gradientUnits", "id", "line-increment", "property", "rel", "resource", "rev", "role", "solid-color", "solid-opacity", "stop-color", "stop-opacity", "stroke", "stroke-dasharray", "stroke-dashoffset", "stroke-linecap", "stroke-linejoin", "stroke-miterlimit", "stroke-opacity", "stroke-width", "text-align", "text-anchor", "typeof", "unicode-bidi", "vector-effect", "x1", "x2", "xml:base", "xml:id", "xml:lang", "xml:space", "y1", "y2"
         };
+        
+        private string[] LINEARGRADIENT_ALLOWED_ELEMENTS = {
+            "stop"
+        };
 
         private string[] RADIALGRADIENT_ALLOWED_ATTRIBUTES = {
             "about", "class", "color", "color-rendering", "content", "cx", "cy", "datatype", "direction", "display-align", "fill", "fill-opacity", "fill-rule", "font-family", "font-size", "font-style", "font-variant", "font-weight", "gradientUnits", "id", "line-increment", "property", "r", "rel", "resource", "rev", "role", "solid-color", "solid-opacity", "stop-color", "stop-opacity", "stroke", "stroke-dasharray", "stroke-dashoffset", "stroke-linecap", "stroke-linejoin", "stroke-miterlimit", "stroke-opacity", "stroke-width", "text-align", "text-anchor", "typeof", "unicode-bidi", "vector-effect", "xml:base", "xml:id", "xml:lang", "xml:space"
+        };
+        
+        private string[] RADIALGRADIENT_ALLOWED_ELEMENTS = {
+            "stop"
         };
 
         private string[] TEXT_ALLOWED_ATTRIBUTES = {
             "about", "class", "color", "color-rendering", "content", "datatype", "direction", "display-align", "editable", "fill", "fill-opacity", "fill-rule", "font-family", "font-size", "font-style", "font-variant", "font-weight", "id", "line-increment", "property", "rel", "requiredFonts", "resource", "rev", "role", "rotate", "solid-color", "solid-opacity", "stop-color", "stop-opacity", "stroke", "stroke-dasharray", "stroke-dashoffset", "stroke-linecap", "stroke-linejoin", "stroke-miterlimit", "stroke-opacity", "stroke-width", "systemLanguage", "text-align", "text-anchor", "transform", "typeof", "unicode-bidi", "vector-effect", "x", "xml:base", "xml:id", "xml:lang", "xml:space", "y"
         };
+        
+        private string[] TEXT_ALLOWED_ELEMENTS = { };
 
         private string[] G_ALLOWED_ATTRIBUTES = {
             "about", "class", "color", "color-rendering", "content", "datatype", "direction", "display-align", "fill", "fill-opacity", "fill-rule", "font-family", "font-size", "font-style", "font-variant", "font-weight", "id", "line-increment", "property", "rel", "requiredFonts", "resource", "rev", "role", "solid-color", "solid-opacity", "stop-color", "stop-opacity", "stroke", "stroke-dasharray", "stroke-dashoffset", "stroke-linecap", "stroke-linejoin", "stroke-miterlimit", "stroke-opacity", "stroke-width", "systemLanguage", "text-align", "text-anchor", "transform", "typeof", "unicode-bidi", "vector-effect", "xml:base", "xml:id", "xml:lang", "xml:space"
         };
+        
+        private string[] G_ALLOWED_ELEMENTS = {
+            "path", "rect", "circle", "line", "ellipse", "polyline", "polygon", "solidColor", "textArea", "linearGradient", "radialGradient", "text", "g", "defs", "use"
+        };
 
         private string[] DEFS_ALLOWED_ATTRIBUTES = {
             "about", "class", "color", "color-rendering", "content", "datatype", "direction", "display-align", "fill", "fill-opacity", "fill-rule", "font-family", "font-size", "font-style", "font-variant", "font-weight", "id", "line-increment", "property", "rel", "resource", "rev", "role", "solid-color", "solid-opacity", "stop-color", "stop-opacity", "stroke", "stroke-dasharray", "stroke-dashoffset", "stroke-linecap", "stroke-linejoin", "stroke-miterlimit", "stroke-opacity", "stroke-width", "text-align", "text-anchor", "typeof", "unicode-bidi", "vector-effect", "xml:base", "xml:id", "xml:lang", "xml:space"
+        };
+        
+        private string[] DEFS_ALLOWED_ELEMENTS = { 
+            "path", "rect", "circle", "line", "ellipse", "polyline", "polygon", "solidColor", "textArea", "linearGradient", "radialGradient", "text", "g", "defs", "use"
         };
 
         private string[] USE_ALLOWED_ATTRIBUTES = {
             "about", "class", "color", "color-rendering", "content", "datatype", "direction", "display-align", "fill", "fill-opacity", "fill-rule", "font-family", "font-size", "font-style", "font-variant", "font-weight", "href", "id", "line-increment", "property", "rel", "requiredFonts", "resource", "rev", "role", "solid-color", "solid-opacity", "stop-color", "stop-opacity", "stroke", "stroke-dasharray", "stroke-dashoffset", "stroke-linecap", "stroke-linejoin", "stroke-miterlimit", "stroke-opacity", "stroke-width", "systemLanguage", "text-align", "text-anchor", "transform", "typeof", "unicode-bidi", "vector-effect", "x", "xml:base", "xml:id", "xml:lang", "xml:space", "y"
         };
         
+        private string[] USE_ALLOWED_ELEMENTS = { };
+        
+        private string[] STOP_ALLOWED_ATTRIBUTES = {
+            "fill-opacity", "stroke-opacity", "fill", "fill-rule", "stroke", "stroke-dasharray", "stroke-dashoffset", "stroke-linecap", "stroke-linejoin", "stroke-miterlimit", "stroke-width", "color", "color-rendering", "vector-effect", "direction", "unicode-bidi", "solid-color", "solid-opacity", "display-align", "line-increment", "stop-color", "stop-opacity", "font-family", "font-size", "font-style", "font-variant", "font-weight", "text-anchor", "text-align", "id", "xml:id", "xml:base", "xml:lang", "class", "role", "rel", "rev", "typeof", "content", "datatype", "resource", "about", "property", "xml:space", "attribute offset"
+        };
+        
+        private string[] STOP_ALLOWED_ELEMENTS = { };
+        
+        private string[] METADATA_ALLOWED_ATTRIBUTES = { };
+
+        private string[] METADATA_ALLOWED_ELEMENTS = { };
+        
         private XDocument m_xdoc;
         private XElement m_emntSvg;
 
         private Dictionary<string, string[]> ALLOWED_ATTRIBUTES = new Dictionary<string, string[]>();
+        private Dictionary<string, string[]> ALLOWED_ELEMENTS = new Dictionary<string, string[]>();
 
         public SvgConverter()
         {
@@ -130,6 +189,29 @@ namespace svgConverter
             ALLOWED_ATTRIBUTES.Add("textArea",TEXTAREA_ALLOWED_ATTRIBUTES);
             ALLOWED_ATTRIBUTES.Add("title", TITLE_ALLOWED_ATTRIBUTES);
             ALLOWED_ATTRIBUTES.Add("use", USE_ALLOWED_ATTRIBUTES);
+            ALLOWED_ATTRIBUTES.Add("stop", STOP_ALLOWED_ATTRIBUTES);
+            ALLOWED_ATTRIBUTES.Add("metadata", METADATA_ALLOWED_ATTRIBUTES);
+            
+            ALLOWED_ELEMENTS.Add("circle", CIRCLE_ALLOWED_ELEMENTS);
+            ALLOWED_ELEMENTS.Add("defs", DEFS_ALLOWED_ELEMENTS);
+            ALLOWED_ELEMENTS.Add("desc", DESC_ALLOWED_ELEMENTS);
+            ALLOWED_ELEMENTS.Add("ellipse", ELLIPSE_ALLOWED_ELEMENTS);
+            ALLOWED_ELEMENTS.Add("g", G_ALLOWED_ELEMENTS);
+            ALLOWED_ELEMENTS.Add("line", LINE_ALLOWED_ELEMENTS);
+            ALLOWED_ELEMENTS.Add("linearGradient", LINEARGRADIENT_ALLOWED_ELEMENTS);
+            ALLOWED_ELEMENTS.Add("path", PATH_ALLOWED_ELEMENTS);
+            ALLOWED_ELEMENTS.Add("polygon", POLYGON_ALLOWED_ELEMENTS);
+            ALLOWED_ELEMENTS.Add("polyline", POLYLINE_ALLOWED_ELEMENTS);
+            ALLOWED_ELEMENTS.Add("radialGradient", RADIALGRADIENT_ALLOWED_ELEMENTS);
+            ALLOWED_ELEMENTS.Add("rect", RECT_ALLOWED_ELEMENTS);
+            ALLOWED_ELEMENTS.Add("solidColor", SOLIDCOLOR_ALLOWED_ELEMENTS);
+            ALLOWED_ELEMENTS.Add("svg", SVG_ALLOWED_ELEMENTS);
+            ALLOWED_ELEMENTS.Add("text", TEXT_ALLOWED_ELEMENTS);
+            ALLOWED_ELEMENTS.Add("textArea",TEXTAREA_ALLOWED_ELEMENTS);
+            ALLOWED_ELEMENTS.Add("title", TITLE_ALLOWED_ELEMENTS);
+            ALLOWED_ELEMENTS.Add("use", USE_ALLOWED_ELEMENTS);
+            ALLOWED_ELEMENTS.Add("stop", STOP_ALLOWED_ELEMENTS);
+            ALLOWED_ELEMENTS.Add("metadata", METADATA_ALLOWED_ELEMENTS);
         }
 
         private void btnGenerate_Click(object sender, EventArgs e)
@@ -261,6 +343,7 @@ namespace svgConverter
                     }
                 }
 
+                List<XElement> removeElements = new List<XElement>();
                 // Removing the disallowed attributes for all children of <svg> element.
                 foreach (XElement child in m_emntSvg.Descendants())
                 {
@@ -297,9 +380,10 @@ namespace svgConverter
                         attrStyle.Remove();
                     }
 
-                    // Removing the disallowed attributes.
-                    if (ALLOWED_ELEMENTS_NAME.Contains(child.Name.LocalName) == true)
-                    {
+                    // If an element is allowed to be a subelement of the parent, clean out any not allowed
+                    // attributes. If it's not an allowed element, add it to a list to remove after the loop is done.
+                    if (ALLOWED_ELEMENTS.ContainsKey(child.Parent.Name.LocalName) 
+                        && ALLOWED_ELEMENTS[child.Parent.Name.LocalName].Contains(child.Name.LocalName)) {
                         List<XAttribute> removeAttrs = new List<XAttribute>();
                         foreach (XAttribute attr in child.Attributes())
                         {
@@ -314,6 +398,13 @@ namespace svgConverter
                             attr.Remove();
                         }
                     }
+                    else {
+                        removeElements.Add(child);
+                    }
+                }
+                
+                foreach (XElement element in removeElements) {
+                    element.Remove();
                 }
 
                 // Saving the document with new file path.
@@ -439,7 +530,7 @@ namespace svgConverter
                 string name = nameAndValue[0];
                 string value = nameAndValue[1];
                 
-                if (ALLOWED_ELEMENTS_NAME.Contains(eleName) == true & ALLOWED_ATTRIBUTES[eleName].Contains(name) == false)
+                if (ALLOWED_ELEMENTS.ContainsKey(eleName) == true && ALLOWED_ATTRIBUTES[eleName].Contains(name) == false)
                     continue;
 
                 XAttribute attr = new XAttribute(name, value);
