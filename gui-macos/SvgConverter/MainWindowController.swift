@@ -143,11 +143,8 @@ class MainWindowController: NSWindowController {
                 
                 do {
                     
-                    // Get the content of the selected file.
-                    let file_content = try String(contentsOfFile: path, encoding: String.Encoding(rawValue: String.Encoding.ascii.rawValue))
-                    
-                    // Parse XML data of the file
-                    xmlDoc = try XMLDocument.init(xmlString: file_content)
+                    // Let XMLDocument honor the file's declared encoding instead of forcing ASCII.
+                    xmlDoc = try XMLDocument(contentsOf: result!, options: [])
                     
                     svgElement = xmlDoc.rootElement()
                     
@@ -283,8 +280,15 @@ class MainWindowController: NSWindowController {
                 // Remove the class attribute
                 let cssAttr = element.attribute(forName: "class")
                 if (cssAttr != nil) {
-                    let styleName = (cssAttr?.stringValue)!
-                    if (mapStyles.count > 0 && mapStyles[styleName] != nil) {
+                    let styleNames = (cssAttr?.stringValue ?? "")
+                        .split(whereSeparator: { $0.isWhitespace })
+                        .map { String($0).trimmingCharacters(in: .whitespacesAndNewlines) }
+                    
+                    for styleName in styleNames {
+                        if (styleName.count == 0 || mapStyles[styleName] == nil) {
+                            continue
+                        }
+                        
                         for attr in mapStyles[styleName]! {
                             element.addAttribute(attr)
                         }
@@ -368,14 +372,18 @@ class MainWindowController: NSWindowController {
         var attributes = [XMLNode]()
         
         for stylePlain in stylePlains {
-            let nameAndVal = stylePlain.split(separator: ":")
+            let nameAndVal = stylePlain.split(separator: ":", maxSplits: 1)
             
             if (nameAndVal.count != 2) {
                 continue
             }
             
-            let name = String(nameAndVal[0])
-            let value = String(nameAndVal[1])
+            let name = String(nameAndVal[0]).trimmingCharacters(in: .whitespacesAndNewlines)
+            let value = String(nameAndVal[1]).trimmingCharacters(in: .whitespacesAndNewlines)
+            
+            if (name.count == 0 || value.count == 0) {
+                continue
+            }
             
             let attr = XMLNode.attribute(withName: String(name), stringValue: String(value)) as! XMLNode
             
@@ -401,12 +409,28 @@ class MainWindowController: NSWindowController {
             return
         }
         
-        let styleName = styleLine[1 ..< open_bracket_pos]
+        let selectorValue = styleLine[0 ..< open_bracket_pos].trimmingCharacters(in: .whitespacesAndNewlines)
         let styleValue = styleLine[open_bracket_pos+1 ..< styleLine.count-1]
         
         let attributes = parseStyleValue(styleValue: styleValue)
+        if (attributes.count == 0) {
+            return
+        }
         
-        mapStyles[styleName] = attributes
+        let selectors = selectorValue.split(separator: ",")
+        for selector in selectors {
+            let normalizedSelector = String(selector).trimmingCharacters(in: .whitespacesAndNewlines)
+            if (normalizedSelector.hasPrefix(".") == false || normalizedSelector.count <= 1) {
+                continue
+            }
+            
+            let styleName = String(normalizedSelector.dropFirst()).trimmingCharacters(in: .whitespacesAndNewlines)
+            if (styleName.count == 0) {
+                continue
+            }
+            
+            mapStyles[styleName] = attributes
+        }
     }
     
     func getAllDescedants(element: XMLElement) {
