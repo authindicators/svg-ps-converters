@@ -22,10 +22,10 @@
 
 import Cocoa
 
-@NSApplicationMain
+@main
 class AppDelegate: NSObject, NSApplicationDelegate {
     
-    private var mainWindow = MainWindowController(windowNibName: NSNib.Name(rawValue: "MainWindowController"))
+    private var mainWindow = MainWindowController(windowNibName: "MainWindowController")
     
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         mainWindow.showWindow(mainWindow.window)

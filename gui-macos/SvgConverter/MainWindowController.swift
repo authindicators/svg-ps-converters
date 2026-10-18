@@ -7,6 +7,7 @@
 //
 
 import Cocoa
+import UniformTypeIdentifiers
 
 class MainWindowController: NSWindowController {
     
@@ -85,6 +86,19 @@ class MainWindowController: NSWindowController {
     
     private var ALLOWED_ATTRIBUTES: [String: [String]] = [:]
     
+    /// Elements SVG Tiny P/S forbids: switch, multimedia, interactivity, scripting and animation.
+    /// (<a> is also forbidden but is unwrapped instead so its contents are kept.)
+    private let FORBIDDEN_ELEMENTS: Set<String> = [
+        "switch", "audio", "video", "animation", "prefetch", "listener", "script", "handler",
+        "animate", "set", "animateMotion", "animateColor", "animateTransform", "mpath", "discard", "foreignObject"
+    ]
+    
+    /// Attributes that SVG Tiny P/S only allows with a single fixed value.
+    private let REQUIRED_VALUES: [String: String] = [
+        "zoomAndPan": "disable", "externalResourcesRequired": "false", "focusable": "false",
+        "snapshotTime": "none", "playbackOrder": "all", "timelineBegin": "onLoad", "editable": "none"
+    ]
+    
     override func windowDidLoad() {
         super.windowDidLoad()
         
@@ -107,111 +121,221 @@ class MainWindowController: NSWindowController {
         ALLOWED_ATTRIBUTES["textArea"] = TEXTAREA_ALLOWED_ATTRIBUTES
         ALLOWED_ATTRIBUTES["title"] = TITLE_ALLOWED_ATTRIBUTES
         ALLOWED_ATTRIBUTES["use"] = USE_ALLOWED_ATTRIBUTES
+        
+        buildUI()
+        updateFileInfo()
     }
     
     private var svgElement: XMLElement!
     private var xmlDoc: XMLDocument!
+    private var inputURL: URL?
     
     private var mapStyles:[String:[XMLNode]] = [:]
     private var descendants: [XMLElement] = []
     
-    @IBOutlet weak var generate_btn: NSButton!
-    @IBOutlet weak var filepath_field: NSTextField!
-    @IBOutlet weak var version_field: NSTextField!
-    @IBOutlet weak var baseProfile_field: NSTextField!
-    @IBOutlet weak var newTitle_field: NSTextField!
+    // MARK: - UI
     
-    @IBAction func selectInputFile(_ sender: NSButton) {
+    private let dropZone = DropZoneView()
+    private let dropIcon = NSImageView()
+    private let filePrimaryLabel = NSTextField(labelWithString: "")
+    private let fileSecondaryLabel = NSTextField(labelWithString: "")
+    private let chooseButton = NSButton(title: "Choose File…", target: nil, action: nil)
+    private let titleField = NSTextField()
+    private let convertButton = NSButton(title: "Convert", target: nil, action: nil)
+    
+    private func buildUI() {
+        guard let window = window else { return }
+        
+        // Header
+        let appIcon = NSImageView()
+        appIcon.image = NSImage(systemSymbolName: "wand.and.stars", accessibilityDescription: nil)
+        appIcon.symbolConfiguration = NSImage.SymbolConfiguration(pointSize: 28, weight: .regular)
+        appIcon.contentTintColor = .controlAccentColor
+        
+        let heading = NSTextField(labelWithString: "SVG Tiny 1.2 to SVG Tiny P/S")
+        heading.font = .systemFont(ofSize: 17, weight: .semibold)
+        let subheading = NSTextField(labelWithString: "Convert an SVG Tiny 1.2 file to the Portable/Secure profile.")
+        subheading.font = .systemFont(ofSize: NSFont.smallSystemFontSize)
+        subheading.textColor = .secondaryLabelColor
+        
+        let headingText = NSStackView(views: [heading, subheading])
+        headingText.orientation = .vertical
+        headingText.alignment = .leading
+        headingText.spacing = 2
+        
+        let header = NSStackView(views: [appIcon, headingText])
+        header.spacing = 12
+        
+        // Drop zone
+        dropIcon.symbolConfiguration = NSImage.SymbolConfiguration(pointSize: 30, weight: .light)
+        dropIcon.contentTintColor = .secondaryLabelColor
+        filePrimaryLabel.font = .systemFont(ofSize: NSFont.systemFontSize, weight: .medium)
+        filePrimaryLabel.lineBreakMode = .byTruncatingMiddle
+        filePrimaryLabel.alignment = .center
+        fileSecondaryLabel.font = .systemFont(ofSize: NSFont.smallSystemFontSize)
+        fileSecondaryLabel.textColor = .secondaryLabelColor
+        chooseButton.target = self
+        chooseButton.action = #selector(openDocument(_:))
+        
+        let dropStack = NSStackView(views: [dropIcon, filePrimaryLabel, fileSecondaryLabel, chooseButton])
+        dropStack.orientation = .vertical
+        dropStack.spacing = 6
+        dropStack.setCustomSpacing(12, after: fileSecondaryLabel)
+        dropStack.translatesAutoresizingMaskIntoConstraints = false
+        dropZone.addSubview(dropStack)
+        dropZone.onDrop = { [weak self] url in self?.loadFile(url: url) }
+        
+        // Title
+        let titleLabel = NSTextField(labelWithString: "Title:")
+        titleField.placeholderString = "Title embedded in the converted file"
+        let titleGrid = NSGridView(views: [[titleLabel, titleField]])
+        titleGrid.rowAlignment = .firstBaseline
+        titleGrid.columnSpacing = 8
+        
+        let outputNote = NSTextField(labelWithString: "The converted file is saved next to the original with a “_tiny_ps.svg” suffix.")
+        outputNote.font = .systemFont(ofSize: NSFont.smallSystemFontSize)
+        outputNote.textColor = .secondaryLabelColor
+        outputNote.lineBreakMode = .byTruncatingTail
+        
+        // Convert
+        convertButton.target = self
+        convertButton.action = #selector(generateNewSVG(_:))
+        convertButton.keyEquivalent = "\r"
+        convertButton.controlSize = .large
+        let buttonRow = NSStackView()
+        buttonRow.setViews([convertButton], in: .trailing)
+        
+        let root = NSStackView(views: [header, dropZone, titleGrid, outputNote, buttonRow])
+        root.orientation = .vertical
+        root.alignment = .leading
+        root.spacing = 16
+        root.setCustomSpacing(6, after: titleGrid)
+        root.setCustomSpacing(20, after: outputNote)
+        root.edgeInsets = NSEdgeInsets(top: 20, left: 24, bottom: 20, right: 24)
+        root.translatesAutoresizingMaskIntoConstraints = false
+        
+        let contentView = NSView()
+        contentView.addSubview(root)
+        window.contentView = contentView
+        
+        let innerWidth: CGFloat = -(root.edgeInsets.left + root.edgeInsets.right)
+        NSLayoutConstraint.activate([
+            root.topAnchor.constraint(equalTo: contentView.topAnchor),
+            root.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            root.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            root.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            root.widthAnchor.constraint(equalToConstant: 520),
+            
+            dropZone.widthAnchor.constraint(equalTo: root.widthAnchor, constant: innerWidth),
+            dropZone.heightAnchor.constraint(equalToConstant: 160),
+            dropStack.centerXAnchor.constraint(equalTo: dropZone.centerXAnchor),
+            dropStack.centerYAnchor.constraint(equalTo: dropZone.centerYAnchor),
+            dropStack.leadingAnchor.constraint(greaterThanOrEqualTo: dropZone.leadingAnchor, constant: 16),
+            filePrimaryLabel.widthAnchor.constraint(lessThanOrEqualTo: dropZone.widthAnchor, constant: -32),
+            
+            titleGrid.widthAnchor.constraint(equalTo: root.widthAnchor, constant: innerWidth),
+            outputNote.widthAnchor.constraint(equalTo: root.widthAnchor, constant: innerWidth),
+            buttonRow.widthAnchor.constraint(equalTo: root.widthAnchor, constant: innerWidth),
+        ])
+        
+        window.initialFirstResponder = titleField
+        window.center()
+    }
+    
+    private func updateFileInfo() {
+        if let url = inputURL {
+            dropIcon.image = NSImage(systemSymbolName: "doc.richtext", accessibilityDescription: nil)
+            filePrimaryLabel.stringValue = url.lastPathComponent
+            let version = svgElement.attribute(forName: "version")?.stringValue ?? "not set"
+            let baseProfile = svgElement.attribute(forName: "baseProfile")?.stringValue ?? "not set"
+            fileSecondaryLabel.stringValue = "Version \(version)  ·  Base profile \(baseProfile)"
+            fileSecondaryLabel.isHidden = false
+            dropZone.toolTip = url.path
+            chooseButton.title = "Choose Another File…"
+        }
+        else {
+            dropIcon.image = NSImage(systemSymbolName: "arrow.down.doc", accessibilityDescription: nil)
+            filePrimaryLabel.stringValue = "Drop an SVG file here"
+            fileSecondaryLabel.isHidden = true
+            dropZone.toolTip = nil
+            chooseButton.title = "Choose File…"
+        }
+        convertButton.isEnabled = (inputURL != nil)
+    }
+    
+    // Also handles File > Open… (⌘O) via the responder chain.
+    @IBAction func openDocument(_ sender: Any?) {
         let dialog = NSOpenPanel()
         
-        dialog.title                   = "Choose a .svg file"
-        dialog.showsResizeIndicator    = true
+        dialog.title                   = "Choose an SVG file"
         dialog.showsHiddenFiles        = false
-        dialog.canChooseDirectories    = true
-        dialog.canCreateDirectories    = true
+        dialog.canChooseDirectories    = false
         dialog.allowsMultipleSelection = false
-        dialog.allowedFileTypes        = ["svg"]
+        dialog.allowedContentTypes     = [.svg]
         
-        if (dialog.runModal() == NSApplication.ModalResponse.OK) {
-            generate_btn.isEnabled = false
-            
-            let result = dialog.url // Pathname of the file
-            
-            if (result != nil) {
-                let path = result!.path
-                filepath_field.stringValue = path
-                
-                do {
-                    
-                    // Get the content of the selected file.
-                    let file_content = try String(contentsOfFile: path, encoding: String.Encoding(rawValue: String.Encoding.ascii.rawValue))
-                    
-                    // Parse XML data of the file
-                    xmlDoc = try XMLDocument.init(xmlString: file_content)
-                    
-                    svgElement = xmlDoc.rootElement()
-                    
-                    if (svgElement?.name != "svg") {
-                        dialogOK(message: "INPUT ERROR", text: "This file is not SVG format.\nPlease select another SVG file.")
-                        return
-                    }
-                    
-                    // Show the version and base profile of the selected svg file
-                    let version = svgElement?.attribute(forName: "version")?.stringValue
-                    let baseProfile = svgElement?.attribute(forName: "baseProfile")?.stringValue
-                    
-                    version_field.stringValue = "Version : " + (version != nil ? version! : "")
-                    baseProfile_field.stringValue = "Base Profile : " + (baseProfile != nil ? baseProfile! : "")
-                    
-                    // Show the title if has title
-                    let titles = svgElement.elements(forName: "title")
-                    
-                    if (titles.count > 0) {
-                        newTitle_field.stringValue = titles[0].stringValue!
-                    }
-                    else {
-                        newTitle_field.stringValue = ""
-                    }
-                    
-                    generate_btn.isEnabled = true
-                }
-                catch {
-                    dialogOK(message: "READING ERROR", text: "Cannot read the file. Please try again!")
-                }
-                
+        dialog.beginSheetModal(for: window!) { [weak self] response in
+            if response == .OK, let url = dialog.url {
+                self?.loadFile(url: url)
             }
-        } else {
-            // User clicked on "Cancel"
-            return
+        }
+    }
+    
+    private func loadFile(url: URL) {
+        inputURL = nil
+        defer { updateFileInfo() }
+        
+        do {
+            // Get the content of the selected file.
+            let file_content = try String(contentsOf: url, encoding: String.Encoding(rawValue: String.Encoding.ascii.rawValue))
+            
+            // Parse XML data of the file
+            xmlDoc = try XMLDocument.init(xmlString: file_content)
+            
+            svgElement = xmlDoc.rootElement()
+            
+            if (svgElement?.name != "svg") {
+                dialogOK(message: "Not an SVG file", text: "Choose a different file.")
+                return
+            }
+            
+            inputURL = url
+            
+            // Show the title if has title
+            let titles = svgElement.elements(forName: "title")
+            titleField.stringValue = titles.first?.stringValue ?? ""
+        }
+        catch {
+            dialogOK(message: "Couldn’t read the file", text: "Make sure it’s a valid SVG file and try again.")
         }
     }
     
     @IBAction func generateNewSVG(_ sender: Any) {
-        if (newTitle_field.stringValue.trimmingCharacters(in: .whitespacesAndNewlines).count == 0) {
-            dialogOK(message: "EMPTY TITLE", text: "You must input the title for new SVG Tiny P/S file.")
+        guard let inputURL = inputURL else { return }
+        
+        if (titleField.stringValue.trimmingCharacters(in: .whitespacesAndNewlines).count == 0) {
+            dialogOK(message: "Title required", text: "Enter a title to embed in the converted file.")
             return
         }
         
         do {
             
-            // Check if has <image> elements
-            let imageElements = svgElement.elements(forName: "image")
+            // Check if has <image> elements anywhere in the document
+            descendants = []
+            getAllDescedants(element: svgElement)
             
-            if (imageElements.count > 0) {
-                dialogOK(message: "ERROR", text: "This SVG file has a <image> element.\nHowever, <image> elements aren't allowed in SVG Tiny Portable/Secure profile.\nSo please remake this svg file without <image> elements or try another SVG file.")
+            if (descendants.contains { $0.localName == "image" }) {
+                dialogOK(message: "Embedded images aren’t allowed", text: "SVG Tiny P/S doesn’t allow <image> elements. Remove them from the file and try again.")
                 return
             }
             
-            let path: NSString = filepath_field.stringValue as NSString
-            
-            let new_path = path.deletingPathExtension + "_tiny_ps.svg"
+            let new_path = (inputURL.path as NSString).deletingPathExtension + "_tiny_ps.svg"
             
             // Set the version to "1.2", Set the base profile to "tiny-ps"
             updateAttribute(element: svgElement, attrName: "version", newValue: "1.2")
             updateAttribute(element: svgElement, attrName: "baseProfile", newValue: "tiny-ps")
             
             // Set the new title
-            updateChild(element: svgElement, childName: "title", newValue: newTitle_field.stringValue)
+            updateChild(element: svgElement, childName: "title", newValue: titleField.stringValue)
             
             // Remove the document type(<!DOCTYPE>)
             xmlDoc.dtd = nil
@@ -229,6 +353,25 @@ class MainWindowController: NSWindowController {
                 }
                 else if(element.localName == "namedview") {
                     (element.parent as! XMLElement).removeChild(at: element.index)
+                }
+            }
+            
+            // Remove forbidden elements, unwrap <a> links, and drop empty <desc> elements
+            descendants = []
+            getAllDescedants(element: svgElement)
+            for element in descendants {
+                guard let parent = element.parent as? XMLElement, let name = element.localName else { continue }
+                let isEmptyDesc = (name == "desc" && (element.stringValue ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                
+                if (name == "a") {
+                    let index = element.index
+                    let children = element.children ?? []
+                    element.setChildren(nil)
+                    parent.removeChild(at: index)
+                    parent.insertChildren(children, at: index)
+                }
+                else if (FORBIDDEN_ELEMENTS.contains(name) || isEmptyDesc) {
+                    parent.removeChild(at: element.index)
                 }
             }
             
@@ -317,16 +460,30 @@ class MainWindowController: NSWindowController {
                 }
             }
             
+            // Remove event attributes and enforce fixed-value attributes on every element
+            descendants = []
+            getAllDescedants(element: svgElement)
+            for element in [svgElement!] + descendants {
+                for attr in element.attributes ?? [XMLNode]() {
+                    if let name = attr.name, (name.hasPrefix("on") || name.hasPrefix("ev:")) {
+                        element.removeAttribute(forName: name)
+                    }
+                }
+                for (name, value) in REQUIRED_VALUES {
+                    element.attribute(forName: name)?.stringValue = value
+                }
+            }
+            
             // Save the document with new file path
             let content = xmlDoc.xmlString
             
             try content.write(to: URL.init(fileURLWithPath: new_path), atomically: false, encoding: .utf8)
             
-            dialogOK(message: "Congratulations!", text: "Generated the new SVG Tiny Portable/Secure file.\n"+new_path)
+            showSuccess(outputURL: URL.init(fileURLWithPath: new_path), warnings: specWarnings(content: content))
         }
         catch {
             print("Unexpected error: \(error).")
-            dialogOK(message: "ERROR", text: "You cannot convert this file to SVG Tiny Portable/Secure.\nPlease check the file again or select another file.")
+            dialogOK(message: "Conversion failed", text: "This file couldn’t be converted to SVG Tiny P/S. Check the file or try another one.")
         }
     }
     
@@ -340,6 +497,24 @@ class MainWindowController: NSWindowController {
         alert.beginSheetModal(for: self.window!)
     }
     
+    func showSuccess(outputURL: URL, warnings: [String]) {
+        let alert = NSAlert()
+        
+        alert.messageText = warnings.isEmpty ? "Conversion complete" : "Converted with warnings"
+        alert.informativeText = "Saved as “\(outputURL.lastPathComponent)”."
+        if (!warnings.isEmpty) {
+            alert.informativeText += "\n\n" + warnings.map { "• " + $0 }.joined(separator: "\n")
+        }
+        alert.alertStyle = warnings.isEmpty ? .informational : .warning
+        alert.addButton(withTitle: "Done")
+        alert.addButton(withTitle: "Show in Finder")
+        alert.beginSheetModal(for: self.window!) { response in
+            if response == .alertSecondButtonReturn {
+                NSWorkspace.shared.activateFileViewerSelecting([outputURL])
+            }
+        }
+    }
+    
     func updateAttribute(element: XMLElement, attrName: String, newValue: String) {
         if (element.attribute(forName: attrName) != nil) {
             element.attribute(forName: attrName)?.stringValue = newValue
@@ -350,8 +525,8 @@ class MainWindowController: NSWindowController {
     }
     
     func updateChild(element: XMLElement, childName: String, newValue: String) {
-        if (element.elements(forName: childName).count > 0) {
-            element.removeChild(at: element.elements(forName: childName)[0].index)
+        for existing in element.elements(forName: childName).reversed() {
+            element.removeChild(at: existing.index)
         }
         
         element.insertChild(XMLNode.element(withName: childName, stringValue: newValue) as! XMLNode, at: 0)
@@ -409,12 +584,83 @@ class MainWindowController: NSWindowController {
         mapStyles[styleName] = attributes
     }
     
+    // MARK: - Spec checks that can't be fixed automatically
+    
+    func specWarnings(content: String) -> [String] {
+        var warnings: [String] = []
+        
+        let titleLength = titleField.stringValue.count
+        if (titleLength > 64) {
+            warnings.append("The title is \(titleLength) characters. The spec recommends 64 or fewer.")
+        }
+        
+        let size = content.utf8.count
+        if (size > 32 * 1024) {
+            let formatted = ByteCountFormatter.string(fromByteCount: Int64(size), countStyle: .file)
+            warnings.append("The file is \(formatted). The spec recommends no more than 32 KB.")
+        }
+        
+        if (renderedColors().count < 2) {
+            warnings.append("The image appears to use fewer than two colors. The spec requires at least two.")
+        }
+        
+        return warnings
+    }
+    
+    /// Approximates the distinct colors the image renders with, including the
+    /// default black fill for shapes that don't set or inherit one.
+    func renderedColors() -> Set<String> {
+        let filledShapes: Set<String> = ["path", "rect", "circle", "ellipse", "polyline", "polygon", "text", "textArea"]
+        var colors = Set<String>()
+        
+        descendants = []
+        getAllDescedants(element: svgElement)
+        
+        for element in [svgElement!] + descendants {
+            for attrName in ["fill", "stroke", "stop-color", "solid-color"] {
+                if let color = normalizedColor(element.attribute(forName: attrName)?.stringValue) {
+                    colors.insert(color)
+                }
+            }
+            
+            if (filledShapes.contains(element.localName ?? "") && inheritedFill(element: element) == nil) {
+                colors.insert("#000000")
+            }
+        }
+        
+        return colors
+    }
+    
+    func inheritedFill(element: XMLElement) -> String? {
+        var current: XMLElement? = element
+        while let node = current {
+            if let fill = node.attribute(forName: "fill")?.stringValue, fill != "inherit" {
+                return fill
+            }
+            current = node.parent as? XMLElement
+        }
+        return nil
+    }
+    
+    func normalizedColor(_ value: String?) -> String? {
+        guard var color = value?.trimmingCharacters(in: .whitespaces).lowercased(), !color.isEmpty else {
+            return nil
+        }
+        if (["none", "inherit", "currentcolor", "transparent"].contains(color) || color.hasPrefix("url(")) {
+            return nil
+        }
+        if (color == "black") { color = "#000000" }
+        if (color == "white") { color = "#ffffff" }
+        if (color.count == 4 && color.hasPrefix("#")) {
+            color = "#" + color.dropFirst().map { "\($0)\($0)" }.joined()
+        }
+        return color
+    }
+    
     func getAllDescedants(element: XMLElement) {
         for child in element.children! {
-            if (child.className.contains("XMLElement") == true)
+            if let childElement = child as? XMLElement
             {
-                let childElement = child as! XMLElement
-                
                 if (childElement.children != nil && childElement.children?.count != 0) {
                     getAllDescedants(element: childElement)
                 }
@@ -460,4 +706,62 @@ extension String {
         return String(self[start ..< end])
     }
     
+}
+
+/// Rounded, dashed drop target that accepts a single SVG file.
+final class DropZoneView: NSView {
+    
+    var onDrop: ((URL) -> Void)?
+    
+    private var isTargeted = false {
+        didSet { needsDisplay = true }
+    }
+    
+    override init(frame frameRect: NSRect) {
+        super.init(frame: frameRect)
+        translatesAutoresizingMaskIntoConstraints = false
+        registerForDraggedTypes([.fileURL])
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func draw(_ dirtyRect: NSRect) {
+        let path = NSBezierPath(roundedRect: bounds.insetBy(dx: 1, dy: 1), xRadius: 10, yRadius: 10)
+        let accent = NSColor.controlAccentColor
+        
+        (isTargeted ? accent.withAlphaComponent(0.12) : NSColor.quaternaryLabelColor.withAlphaComponent(0.08)).setFill()
+        path.fill()
+        
+        path.lineWidth = isTargeted ? 2 : 1.5
+        path.setLineDash([6, 4], count: 2, phase: 0)
+        (isTargeted ? accent : NSColor.tertiaryLabelColor).setStroke()
+        path.stroke()
+    }
+    
+    private func svgURL(from info: NSDraggingInfo) -> URL? {
+        let options: [NSPasteboard.ReadingOptionKey: Any] = [
+            .urlReadingFileURLsOnly: true,
+            .urlReadingContentsConformToTypes: [UTType.svg.identifier],
+        ]
+        return (info.draggingPasteboard.readObjects(forClasses: [NSURL.self], options: options) as? [URL])?.first
+    }
+    
+    override func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
+        guard svgURL(from: sender) != nil else { return [] }
+        isTargeted = true
+        return .copy
+    }
+    
+    override func draggingExited(_ sender: NSDraggingInfo?) {
+        isTargeted = false
+    }
+    
+    override func performDragOperation(_ sender: NSDraggingInfo) -> Bool {
+        isTargeted = false
+        guard let url = svgURL(from: sender) else { return false }
+        onDrop?(url)
+        return true
+    }
 }

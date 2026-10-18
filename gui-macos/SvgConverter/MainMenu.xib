@@ -16,11 +16,11 @@
         <customObject id="Tc9-bE-ajr" customClass="AppDelegate" customModule="SvgConverter" customModuleProvider="target"/>
         <menu title="Main Menu" systemMenu="main" id="AYu-sK-qS6">
             <items>
-                <menuItem title="SvgConverter" id="1Xt-HY-uBw">
+                <menuItem title="SVG Tiny PS Converter" id="1Xt-HY-uBw">
                     <modifierMask key="keyEquivalentModifierMask"/>
-                    <menu key="submenu" title="SvgConverter" systemMenu="apple" id="uQy-DD-JDr">
+                    <menu key="submenu" title="SVG Tiny PS Converter" systemMenu="apple" id="uQy-DD-JDr">
                         <items>
-                            <menuItem title="About SvgConverter" id="5kV-Vb-QxS">
+                            <menuItem title="About SVG Tiny PS Converter" id="5kV-Vb-QxS">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="orderFrontStandardAboutPanel:" target="-1" id="Exp-CZ-Vem"/>
@@ -32,7 +32,7 @@
                                 <menu key="submenu" title="Services" systemMenu="services" id="hz9-B4-Xy5"/>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="4je-JR-u6R"/>
-                            <menuItem title="Hide NewApplication" keyEquivalent="h" id="Olw-nP-bQN">
+                            <menuItem title="Hide SVG Tiny PS Converter" keyEquivalent="h" id="Olw-nP-bQN">
                                 <connections>
                                     <action selector="hide:" target="-1" id="PnN-Uc-m68"/>
                                 </connections>
@@ -50,7 +50,7 @@
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="kCx-OE-vgT"/>
-                            <menuItem title="Quit SvgConverter" keyEquivalent="q" id="4sb-4s-VLi">
+                            <menuItem title="Quit SVG Tiny PS Converter" keyEquivalent="q" id="4sb-4s-VLi">
                                 <connections>
                                     <action selector="terminate:" target="-1" id="Te7-pn-YzF"/>
                                 </connections>
@@ -369,7 +369,7 @@
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <menu key="submenu" title="Help" systemMenu="help" id="F2S-fz-NVQ">
                         <items>
-                            <menuItem title="NewApplication Help" keyEquivalent="?" id="FKE-Sm-Kum">
+                            <menuItem title="SVG Tiny PS Converter Help" keyEquivalent="?" id="FKE-Sm-Kum">
                                 <connections>
                                     <action selector="showHelp:" target="-1" id="y7X-2Q-9no"/>
                                 </connections>
