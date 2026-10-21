@@ -4,7 +4,7 @@ A simple standalone application for MacOS that offers a GUI interface to convert
 
 ## Instructions
 
-1. Download the [compiled executable application](https://github.com/authindicators/svg-ps-converters/blob/master/gui-macos/SvgConverter_v0-1_app.zip), or download the source code and compile it.
+1. Download the [compiled executable application](https://github.com/authindicators/svg-ps-converters/blob/master/gui-macos/SvgConverter_v0-2_app.zip), or download the source code and compile it. Requires macOS 12 or later; runs natively on both Apple silicon and Intel Macs.
 1. Run the application.
 1. Select the input file.
 1. Add or modify the title of the image (this is the title to be embedded within the SVG P/S file, not to be confused with the filename).

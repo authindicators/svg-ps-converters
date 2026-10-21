@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "AD1ECB8A24F5586200AFFD6F"
-               BuildableName = "SvgConverter.app"
+               BuildableName = "SVG Tiny PS Converter.app"
                BlueprintName = "SvgConverter"
                ReferencedContainer = "container:SvgConverter.xcodeproj">
             </BuildableReference>
@@ -65,7 +65,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "AD1ECB8A24F5586200AFFD6F"
-            BuildableName = "SvgConverter.app"
+            BuildableName = "SVG Tiny PS Converter.app"
             BlueprintName = "SvgConverter"
             ReferencedContainer = "container:SvgConverter.xcodeproj">
          </BuildableReference>
@@ -82,7 +82,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "AD1ECB8A24F5586200AFFD6F"
-            BuildableName = "SvgConverter.app"
+            BuildableName = "SVG Tiny PS Converter.app"
             BlueprintName = "SvgConverter"
             ReferencedContainer = "container:SvgConverter.xcodeproj">
          </BuildableReference>
